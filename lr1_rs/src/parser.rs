@@ -1,6 +1,7 @@
 use super::*;
 use std::collections::{BTreeSet, HashMap, HashSet};
 use std::fmt;
+use serde::{Serialize, Deserialize};
 
 // 语法分析器
 pub struct Parser {
@@ -23,7 +24,8 @@ struct State {
     pub index: usize,
 }
 
-#[derive(Debug, Clone)]
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub enum ASTNode {
     Terminal(String),
     NonTerminal(String, Vec<ASTNode>),

@@ -1,0 +1,61 @@
+{
+  "NonTerminal": [
+    "program",
+    [
+      {
+        "NonTerminal": [
+          "sourceElements",
+          [
+            {
+              "NonTerminal": [
+                "sourceElement",
+                [
+                  {
+                    "NonTerminal": [
+                      "statement",
+                      [
+                        {
+                          "NonTerminal": [
+                            "importStatement",
+                            [
+                              {
+                                "Terminal": "import"
+                              },
+                              {
+                                "NonTerminal": [
+                                  "importFromBlock",
+                                  [
+                                    {
+                                      "Terminal": "str"
+                                    },
+                                    {
+                                      "NonTerminal": [
+                                        "eos",
+                                        [
+                                          {
+                                            "Terminal": "semicolon"
+                                          }
+                                        ]
+                                      ]
+                                    }
+                                  ]
+                                ]
+                              }
+                            ]
+                          ]
+                        }
+                      ]
+                    ]
+                  }
+                ]
+              ]
+            }
+          ]
+        ]
+      },
+      {
+        "Terminal": "eof"
+      }
+    ]
+  ]
+}
