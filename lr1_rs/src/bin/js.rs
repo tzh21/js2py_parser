@@ -1,0 +1,113 @@
+use lr1_rs::*;
+use std::collections::HashSet;
+
+fn js_grammar() -> Grammar {
+    grammar!(
+        "Program",
+        prod!("Program" => ),
+        prod!("Program" => "Element", "Program"),
+        prod!("Element" => "function", "Identifier", "(", "ParameterListOpt", ")", "CompoundStatement"),
+        prod!("Element" => "Statement"),
+        prod!("ParameterListOpt" => ),
+        prod!("ParameterListOpt" => "ParameterList"),
+        prod!("ParameterList" => "Identifier"),
+        prod!("ParameterList" => "Identifier", ",", "ParameterList"),
+        prod!("CompoundStatement" => "{", "Statements", "}"),
+        prod!("Statements" => ),
+        prod!("Statements" => "Statement", "Statements"),
+        prod!("Statement" => ";"),
+        prod!("Statement" => "if", "Condition", "Statement"),
+        prod!("Statement" => "if", "Condition", "Statement", "else", "Statement"),
+        prod!("Statement" => "while", "Condition", "Statement"),
+        prod!("Statement" => "ForParen", ";", "ExpressionOpt", ";", "ExpressionOpt", ")", "Statement"),
+        prod!("Statement" => "ForBegin", ";", "ExpressionOpt", ";", "ExpressionOpt", ")", "Statement"),
+        prod!("Statement" => "ForBegin", "in", "Expression", ")", "Statement"),
+        prod!("Statement" => "break", ";"),
+        prod!("Statement" => "continue", ";"),
+        prod!("Statement" => "with", "(", "Expression", ")", "Statement"),
+        prod!("Statement" => "return", "ExpressionOpt", ";"),
+        prod!("Statement" => "CompoundStatement"),
+        prod!("Statement" => "VariablesOrExpression", ";"),
+        prod!("Condition" => "(", "Expression", ")"),
+        prod!("ForParen" => "for", "("),
+        prod!("ForBegin" => "ForParen", "VariablesOrExpression"),
+        prod!("VariablesOrExpression" => "var", "Variables"),
+        prod!("VariablesOrExpression" => "Expression"),
+        prod!("Variables" => "Variable"),
+        prod!("Variables" => "Variable", ",", "Variables"),
+        prod!("Variable" => "Identifier"),
+        prod!("Variable" => "Identifier", "=", "AssignmentExpression"),
+        prod!("ExpressionOpt" => ),
+        prod!("ExpressionOpt" => "Expression"),
+        prod!("Expression" => "AssignmentExpression"),
+        prod!("Expression" => "AssignmentExpression", ",", "Expression"),
+        prod!("AssignmentExpression" => "ConditionalExpression"),
+        prod!("AssignmentExpression" => "ConditionalExpression", "AssignmentOperator", "AssignmentExpression"),
+        prod!("ConditionalExpression" => "OrExpression"),
+        prod!("ConditionalExpression" => "OrExpression", "?", "AssignmentExpression", ":", "AssignmentExpression"),
+        prod!("OrExpression" => "AndExpression"),
+        prod!("OrExpression" => "AndExpression", "||", "OrExpression"),
+        prod!("AndExpression" => "BitwiseOrExpression"),
+        prod!("AndExpression" => "BitwiseOrExpression", "&&", "AndExpression"),
+        prod!("BitwiseOrExpression" => "BitwiseXorExpression"),
+        prod!("BitwiseOrExpression" => "BitwiseXorExpression", "|", "BitwiseOrExpression"),
+        prod!("BitwiseXorExpression" => "BitwiseAndExpression"),
+        prod!("BitwiseXorExpression" => "BitwiseAndExpression", "^", "BitwiseXorExpression"),
+        prod!("BitwiseAndExpression" => "EqualityExpression"),
+        prod!("BitwiseAndExpression" => "EqualityExpression", "&", "BitwiseAndExpression"),
+        prod!("EqualityExpression" => "RelationalExpression"),
+        prod!("EqualityExpression" => "RelationalExpression", "EqualityualityOperator", "EqualityExpression"),
+        prod!("RelationalExpression" => "ShiftExpression"),
+        prod!("RelationalExpression" => "RelationalExpression", "RelationalationalOperator", "ShiftExpression"),
+        prod!("ShiftExpression" => "AdditiveExpression"),
+        prod!("ShiftExpression" => "AdditiveExpression", "ShiftOperator", "ShiftExpression"),
+        prod!("AdditiveExpression" => "MultiplicativeExpression"),
+        prod!("AdditiveExpression" => "MultiplicativeExpression", "+", "AdditiveExpression"),
+        prod!("AdditiveExpression" => "MultiplicativeExpression", "-", "AdditiveExpression"),
+        prod!("MultiplicativeExpression" => "UnaryExpression"),
+        prod!("MultiplicativeExpression" => "UnaryExpression", "MultiplicativeOperator", "MultiplicativeExpression"),
+        prod!("UnaryExpression" => "MemberExpression"),
+        prod!("UnaryExpression" => "UnaryOperator", "UnaryExpression"),
+        prod!("UnaryExpression" => "-", "UnaryExpression"),
+        prod!("UnaryExpression" => "IncrementOperator", "MemberExpression"),
+        prod!("UnaryExpression" => "MemberExpression", "IncrementOperator"),
+        prod!("UnaryExpression" => "new", "Constructor"),
+        prod!("UnaryExpression" => "delete", "MemberExpression"),
+        prod!("Constructor" => "this", ".", "ConstructorCall"),
+        prod!("Constructor" => "ConstructorCall"),
+        prod!("ConstructorCall" => "Identifier"),
+        prod!("ConstructorCall" => "Identifier", "(", "ArgumentListOpt", ")"),
+        prod!("ConstructorCall" => "Identifier", ".", "ConstructorCall"),
+        prod!("MemberExpression" => "PrimaryExpression"),
+        prod!("MemberExpression" => "PrimaryExpression", ".", "MemberExpression"),
+        prod!("MemberExpression" => "PrimaryExpression", "[", "Expression", "]"),
+        prod!("MemberExpression" => "PrimaryExpression", "(", "ArgumentListOpt", ")"),
+        prod!("ArgumentListOpt" => ),
+        prod!("ArgumentListOpt" => "ArgumentList"),
+        prod!("ArgumentList" => "AssignmentExpression"),
+        prod!("ArgumentList" => "AssignmentExpression", ",", "ArgumentList"),
+        prod!("PrimaryExpression" => "(", "Expression", ")"),
+        prod!("PrimaryExpression" => "Identifier"),
+        prod!("PrimaryExpression" => "IntegerLiteral"),
+        prod!("PrimaryExpression" => "FloatingPointLiteral"),
+        prod!("PrimaryExpression" => "StringLiteral"),
+        prod!("PrimaryExpression" => "false"),
+        prod!("PrimaryExpression" => "true"),
+        prod!("PrimaryExpression" => "null"),
+        prod!("PrimaryExpression" => "this")
+    )
+}
+
+fn main() {
+    let parser = Parser::new(js_grammar());
+
+    let input = ["(", "d", ")"].iter().map(|&c| Term!(c)).collect();
+
+    match parser.parse(input) {
+        Ok(ast) => {
+            println!("{}", ast);
+        }
+        Err(e) => panic!("Parsing error: {}", e),
+    }
+}
+

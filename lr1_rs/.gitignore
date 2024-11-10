@@ -1,0 +1,5 @@
+/target
+lex/target
+*.bak
+*.case
+.DS_Store
