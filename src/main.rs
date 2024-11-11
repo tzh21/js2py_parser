@@ -6,16 +6,16 @@ use lr1_rs::*;
 fn js_grammar() -> Grammar {
     grammar!(
         "program",
-        //
+        // Program structure
         prod!("program" => "sourceElements", "eof"),
         prod!("program" => "eof"),
-        //
         prod!("sourceElements" => "sourceElement", "sourceElements"),
         prod!("sourceElements" => "sourceElement"),
         prod!("sourceElement" => "statement"),
         prod!("statementList" => "statement"),
         prod!("statementList" => "statement", "statementList"),
-        //
+
+        // Basic statements
         prod!("statement" => "block"),
         prod!("statement" => "variableStatement"),
         prod!("statement" => "importStatement"),
@@ -36,8 +36,140 @@ fn js_grammar() -> Grammar {
         prod!("statement" => "throwStatement"),
         prod!("statement" => "tryStatement"),
         prod!("statement" => "debuggerStatement"),
+
+        // Import statements
         prod!("importStatement" => "import", "importFromBlock"),
         prod!("importFromBlock" => "str", "eos"),
+
+        // Variable declarations
+        prod!("variableStatement" => "var", "variableDeclarationList", "eos"),
+        prod!("variableStatement" => "let", "variableDeclarationList", "eos"),
+        prod!("variableStatement" => "const", "variableDeclarationList", "eos"),
+        prod!("variableDeclarationList" => "variableDeclaration"),
+        prod!("variableDeclarationList" => "variableDeclaration", "comma", "variableDeclarationList"),
+        prod!("variableDeclaration" => "identifier"),
+        prod!("variableDeclaration" => "identifier", "assign", "singleExpression"),
+
+        // Function declarations
+        prod!("functionDeclaration" => "function", "identifier", "openParen", "closeParen", "block"),
+        prod!("functionDeclaration" => "function", "identifier", "openParen", "formalParameterList", "closeParen", "block"),
+        prod!("formalParameterList" => "identifier"),
+        prod!("formalParameterList" => "identifier", "comma", "formalParameterList"),
+
+        // Block
+        prod!("block" => "openBrace", "closeBrace"),
+        prod!("block" => "openBrace", "statementList", "closeBrace"),
+
+        // Expressions
+        prod!("expressionStatement" => "expressionSequence", "eos"),
+        prod!("expressionSequence" => "singleExpression"),
+        prod!("expressionSequence" => "singleExpression", "comma", "expressionSequence"),
+        
+        // Basic expressions
+        prod!("singleExpression" => "identifier"),
+        prod!("singleExpression" => "literal"),
+        prod!("singleExpression" => "arrayLiteral"),
+        prod!("singleExpression" => "objectLiteral"),
+        prod!("singleExpression" => "singleExpression", "plus", "singleExpression"),
+        prod!("singleExpression" => "singleExpression", "minus", "singleExpression"),
+        prod!("singleExpression" => "singleExpression", "multiply", "singleExpression"),
+        prod!("singleExpression" => "singleExpression", "divide", "singleExpression"),
+
+        // Control structures
+        prod!("ifStatement" => "if", "openParen", "expressionSequence", "closeParen", "statement"),
+        prod!("ifStatement" => "if", "openParen", "expressionSequence", "closeParen", "statement", "else", "statement"),
+
+        // Loops
+        prod!("iterationStatement" => "while", "openParen", "expressionSequence", "closeParen", "statement"),
+        prod!("iterationStatement" => "for", "openParen", "variableStatement", "expressionSequence", "semicolon", "expressionSequence", "closeParen", "statement"),
+
+        prod!("singleExpression" => "identifier"),
+        prod!("singleExpression" => "literal"),
+        prod!("singleExpression" => "arrayLiteral"),
+        prod!("singleExpression" => "objectLiteral"),
+        
+        // 算术运算符
+        prod!("singleExpression" => "singleExpression", "plus", "singleExpression"),
+        prod!("singleExpression" => "singleExpression", "minus", "singleExpression"),
+        prod!("singleExpression" => "singleExpression", "multiply", "singleExpression"),
+        prod!("singleExpression" => "singleExpression", "divide", "singleExpression"),
+        prod!("singleExpression" => "singleExpression", "modulus", "singleExpression"),
+        prod!("singleExpression" => "minus", "singleExpression"),  // 负号
+        prod!("singleExpression" => "plus", "singleExpression"),   // 正号
+        
+        // 比较运算符
+        prod!("singleExpression" => "singleExpression", "lessThan", "singleExpression"),
+        prod!("singleExpression" => "singleExpression", "moreThan", "singleExpression"),
+        prod!("singleExpression" => "singleExpression", "lessEqual", "singleExpression"),
+        prod!("singleExpression" => "singleExpression", "moreEqual", "singleExpression"),
+        prod!("singleExpression" => "singleExpression", "equals", "singleExpression"),
+        prod!("singleExpression" => "singleExpression", "notEquals", "singleExpression"),
+        prod!("singleExpression" => "singleExpression", "identityEquals", "singleExpression"),    // ===
+        prod!("singleExpression" => "singleExpression", "identityNotEquals", "singleExpression"), // !==
+        
+        // 逻辑运算符
+        prod!("singleExpression" => "singleExpression", "and", "singleExpression"),  // &&
+        prod!("singleExpression" => "singleExpression", "or", "singleExpression"),   // ||
+        prod!("singleExpression" => "not", "singleExpression"),                      // !
+        
+        // 位运算符
+        prod!("singleExpression" => "singleExpression", "bitwiseAnd", "singleExpression"),  // &
+        prod!("singleExpression" => "singleExpression", "bitwiseOr", "singleExpression"),   // |
+        prod!("singleExpression" => "singleExpression", "bitwiseXor", "singleExpression"),  // ^
+        prod!("singleExpression" => "bitwiseNot", "singleExpression"),                      // ~
+        prod!("singleExpression" => "singleExpression", "leftShift", "singleExpression"),   // <<
+        prod!("singleExpression" => "singleExpression", "rightShift", "singleExpression"),  // >>
+        
+        // 赋值运算符
+        prod!("singleExpression" => "singleExpression", "assign", "singleExpression"),           // =
+        prod!("singleExpression" => "singleExpression", "plusAssign", "singleExpression"),      // +=
+        prod!("singleExpression" => "singleExpression", "minusAssign", "singleExpression"),     // -=
+        prod!("singleExpression" => "singleExpression", "multiplyAssign", "singleExpression"),  // *=
+        prod!("singleExpression" => "singleExpression", "divideAssign", "singleExpression"),    // /=
+        
+        // 自增自减
+        prod!("singleExpression" => "increment", "singleExpression"),  // ++x
+        prod!("singleExpression" => "decrement", "singleExpression"),  // --x
+        prod!("singleExpression" => "singleExpression", "increment"),  // x++
+        prod!("singleExpression" => "singleExpression", "decrement"),  // x--
+
+        // 类相关语法
+        prod!("classDeclaration" => "class", "identifier", "classTail"),
+        prod!("classDeclaration" => "class", "identifier", "extends", "singleExpression", "classTail"),
+        
+        prod!("classTail" => "openBrace", "closeBrace"),
+        prod!("classTail" => "openBrace", "classElements", "closeBrace"),
+        
+        prod!("classElements" => "classElement"),
+        prod!("classElements" => "classElement", "classElements"),
+        
+        prod!("classElement" => "methodDefinition"),
+        prod!("classElement" => "staticMethodDefinition"),
+        prod!("classElement" => "fieldDefinition"),
+        prod!("classElement" => "staticFieldDefinition"),
+        prod!("classElement" => "constructor"),
+        
+        // 构造函数
+        prod!("constructor" => "constructor", "openParen", "closeParen", "block"),
+        prod!("constructor" => "constructor", "openParen", "formalParameterList", "closeParen", "block"),
+        
+        // 方法定义
+        prod!("methodDefinition" => "identifier", "openParen", "closeParen", "block"),
+        prod!("methodDefinition" => "identifier", "openParen", "formalParameterList", "closeParen", "block"),
+        
+        // 静态方法
+        prod!("staticMethodDefinition" => "static", "identifier", "openParen", "closeParen", "block"),
+        prod!("staticMethodDefinition" => "static", "identifier", "openParen", "formalParameterList", "closeParen", "block"),
+        
+        // 字段定义
+        prod!("fieldDefinition" => "identifier", "semicolon"),
+        prod!("fieldDefinition" => "identifier", "assign", "singleExpression", "semicolon"),
+        
+        // 静态字段
+        prod!("staticFieldDefinition" => "static", "identifier", "semicolon"),
+        prod!("staticFieldDefinition" => "static", "identifier", "assign", "singleExpression", "semicolon")
+        
+        // End of statement
         prod!("eos" => "eof"),
         prod!("eos" => "semicolon")
     )
